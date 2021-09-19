@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Mirror;
 
 public class PlayerCameraController : NetworkBehaviour
@@ -15,6 +16,8 @@ public class PlayerCameraController : NetworkBehaviour
     public override void OnStartClient() {
         mainCamera = transform.Find("Main Camera").GetComponent<Camera>();
         playerCamera = transform.Find("Player Camera").gameObject;
+
+        AssignID(GetComponent<PlayerInformation>().clientID);
     }
 
     [Client]

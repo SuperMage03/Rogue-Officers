@@ -5,7 +5,7 @@ public class GameNetworkManager : NetworkManager
 {
 
     [SerializeField] Vector3 spawnPoint = new Vector3(0f, 0f, 0f);
-    private int clientNumber = 0;
+    private static int clientNumber = 0;
     
     public override void OnServerAddPlayer(NetworkConnection conn)
     {
@@ -15,7 +15,14 @@ public class GameNetworkManager : NetworkManager
         clientNumber++;
 
         NetworkServer.AddPlayerForConnection(conn, player); //player owned by connection
-        player.GetComponent<PlayerCameraController>().AssignID(clientNumber);
+        //player.GetComponent<PlayerCameraController>().AssignID(clientNumber);
+
+        //Debug.Log(player.GetComponent<PlayerMovement>());
+        //player.GetComponent<PlayerMovement>().SetUsername(clientNumber-1);
+
+        //Debug.Log("CLIENT NUMBER "+ clientNumber);
+        player.GetComponent<PlayerInformation>().clientID = clientNumber;
+        //Debug.Log(player.GetComponent<PlayerInformation>().clientID + "     " + clientNumber);
     }
 
     public override void OnServerDisconnect(NetworkConnection conn)
@@ -24,7 +31,7 @@ public class GameNetworkManager : NetworkManager
         // call base functionality (actually destroys the player)
         base.OnServerDisconnect(conn);
 
-        clientNumber--;
+        //clientNumber--;
         Debug.Log(clientNumber);
     }
 }

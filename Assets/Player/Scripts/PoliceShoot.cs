@@ -44,7 +44,6 @@ public class PoliceShoot : NetworkBehaviour
                         npcMovement.gotHit = true;
                         npcMovement.gotHitBy = transform.gameObject;
                         npcMovement.hp -= bulletDamage;
-                        Debug.Log(transform.gameObject);
                     }
                 }
             }

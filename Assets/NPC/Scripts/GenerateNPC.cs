@@ -5,7 +5,8 @@ using Mirror;
 
 public class GenerateNPC : NetworkBehaviour
 {
-    public GameObject npcPrefab;
+    public GameObject maleNPCPrefab;
+    public GameObject femaleNPCPrefab;
     public int xPos, zPos;
     public int npcCount = 0;
     public float groundBuffer = 0.05f;
@@ -32,10 +33,17 @@ public class GenerateNPC : NetworkBehaviour
                 Transform hitTransform = groundHit.transform;
                 if (hitObject.name.Substring(0, 4) == "Road")
                 {
+                    if (Random.Range(0, 2) == 0)
+                    {
+                        NPC = Instantiate(maleNPCPrefab, new Vector3(xPos, hitTransform.position.y + groundBuffer, zPos), Quaternion.identity);
+                    }
+                    else
+                    {
+                        NPC = Instantiate(femaleNPCPrefab,
+                            new Vector3(xPos, hitTransform.position.y + groundBuffer, zPos), Quaternion.identity);
+                    }
                     
-                    NPC = Instantiate(npcPrefab, new Vector3(xPos, hitTransform.position.y + groundBuffer, zPos), Quaternion.identity);
                     NetworkServer.Spawn(NPC);
-                    
                     yield return new WaitForSeconds(0.2f);
                     npcCount++;
                 }

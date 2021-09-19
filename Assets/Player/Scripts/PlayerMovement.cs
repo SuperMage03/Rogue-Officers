@@ -2,14 +2,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Mirror;
+using TMPro;
 
 public class PlayerMovement : NetworkBehaviour
 {
     public CharacterController cc;
     public Transform cam;
     public Animator anime;
-    
+
     public float walkSpeed = 3f;
     public float runSpeed = 6f;
     public float terminalVel = -100f;
@@ -19,29 +21,70 @@ public class PlayerMovement : NetworkBehaviour
 
     private float turnSmoothVelocity; 
     private float netGravityVel = 0f;
-    
+    private float deathAnimationTime = 2f;
+    private float toDeathScreenTime = Mathf.Infinity;
+    private GameObject deathCanvas;
+
+    private bool setUsername = false;
+    private int clientID;
+
     private static readonly int AnimeForward = Animator.StringToHash("Forward");
+    private static readonly int Death = Animator.StringToHash("Death");
+
+    [SerializeField] private TextMeshProUGUI username;
+    private UsernameHolder usernameHolder;
+
+    private PlayerInformation playerInfo;
 
     public override void OnStartClient() {
         anime = GetComponent<Animator>();
+        playerInfo = GetComponent<PlayerInformation>();
+        deathCanvas = transform.Find("Death Canvas").gameObject;
     }
+
+    /*[Client]
+    public void SetUsername(int id) {
+        clientID = id;
+    }*/
+
+    
+
 
     [Client]
     void Update()
     {
-        
-        /*
+
+        /*if(!setUsername) {
+            Debug.Log(playerInfo.clientID);
+            string s = GameObject.FindWithTag("usernameHolder").GetComponent<UsernameHolder>().usernames[playerInfo.clientID];
+            if(s != null) username.text = s;
+            else username.text = "Player";
+        }*/
+
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
         if(Input.GetKey(KeyCode.Escape)) {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.None;
-        }*/
-
+        }
 
         if(!hasAuthority) return;
 
+        if (hp <= 0f)
+        {
+            if (float.IsPositiveInfinity(toDeathScreenTime))
+            {
+                toDeathScreenTime = Time.time + deathAnimationTime;
+                anime.SetBool(Death, true);
+            }
+            else if (toDeathScreenTime <= Time.time)
+            {
+                deathCanvas.SetActive(true);
+            }
+            return;
+        }
+        
         // Movement
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");

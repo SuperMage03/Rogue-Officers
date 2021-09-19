@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using TMPro;
 
 namespace Mirror
 {
@@ -10,6 +11,9 @@ namespace Mirror
         NetworkManager manager;
         public GameObject cam;
         public GameObject menuCanvas;
+
+        //[SerializeField] private UsernameHolder usernameHolder;
+        //[SerializeField] private GameObject username;
 
         void Awake()
         {
@@ -67,6 +71,7 @@ namespace Mirror
             if (!NetworkClient.active && Application.platform != RuntimePlatform.WebGLPlayer)
             {
                 // Server + Client
+                //usernameHolder.usernames.Add("");
                 cam.SetActive(false);
                 menuCanvas.SetActive(false);
                 manager.StartHost();
@@ -75,12 +80,13 @@ namespace Mirror
 
         public void Multiplayer()
         {
+            //usernameHolder.usernames.Add(username.GetComponent<TMP_InputField>().text);
             cam.SetActive(false);
             menuCanvas.SetActive(false);
             manager.StartClient();
             manager.networkAddress = "34.130.236.58";
         }
-    
+
         public void QuitGame()
         {
             Application.Quit();

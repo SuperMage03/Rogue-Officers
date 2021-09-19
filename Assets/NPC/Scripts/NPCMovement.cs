@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Experimental.AI;
 using Random = UnityEngine.Random;
+using UnityEngine.UI;
 using Mirror;
 
 public class NPCMovement : NetworkBehaviour
@@ -12,7 +13,8 @@ public class NPCMovement : NetworkBehaviour
     public float groundBuffer = 0.05f;
     public bool gotHit = false;
     public GameObject gotHitBy = null;
-    public float hp = 100f;
+    public float hp;
+    public float maxHp = 100f;
     public float punchDamage = 10f;
 
     public float runSpeed = 5f, walkSpeed = 2f;
@@ -26,17 +28,30 @@ public class NPCMovement : NetworkBehaviour
     private static readonly int Punch = Animator.StringToHash("Punch");
     private static readonly int Death = Animator.StringToHash("Death");
 
+    [SerializeField] private GameObject healthBarUI;
+    public Slider slider;
+
     // Start is called before the first frame update
     void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
         anime = GetComponent<Animator>();
         StartCoroutine(NPCRandMovement());
+
+        hp = maxHp;
+        slider.value = CalculateHealth();
+        healthBarUI.SetActive(false);
+
     }
 
     [ServerCallback]
     private void Update()
     {
+        slider.value = CalculateHealth();
+
+        if(hp < maxHp) healthBarUI.SetActive(true);
+        if(hp > maxHp) hp = maxHp;
+
         if (hp <= 0f)
         {
             navMeshAgent.SetDestination(navMeshAgent.transform.position);
@@ -51,12 +66,21 @@ public class NPCMovement : NetworkBehaviour
             { 
                 PlayerMovement playerMovement = gotHitBy.gameObject.GetComponent<PlayerMovement>();
                 playerMovement.hp -= punchDamage;
+                if (playerMovement.hp <= 0f)
+                {
+                    gotHit = false;
+                    gotHitBy = null;
+                    StartCoroutine(NPCRandMovement());
+                }
             }
             punchCheckTime = Mathf.Infinity;
         }
 
         if (gotHit)
         {
+
+            healthBarUI.transform.rotation = Quaternion.LookRotation(transform.position - gotHitBy.transform.position);
+
             if (Mathf.Abs(Vector3.Distance(navMeshAgent.transform.position, gotHitBy.transform.position)) > 1f)
             {
                 navMeshAgent.SetDestination(gotHitBy.transform.position);
@@ -112,4 +136,10 @@ public class NPCMovement : NetworkBehaviour
 
 
     }
+
+
+    float CalculateHealth() {
+        return hp / maxHp;
+    }
+
 }

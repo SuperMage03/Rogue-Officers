@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Drivable Car
   - NPC
+  - usernameHolder
   layers:
   - Default
   - TransparentFX
